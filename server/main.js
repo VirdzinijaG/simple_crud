@@ -1,19 +1,23 @@
-const express = require("express");
-const app = express();
-const mysql = require("mysql");
-const cors = require("cors");
+const express = require('express')
+const app = express()
+const port = 3003
+const mysql = require('mysql')
+const cors = require('cors')
+app.use(cors())
 
-app.use(cors());
+app.use(express.urlencoded({
+    extended: true
+}))
 app.use(express.json());
 
-const db = mysql.createConnection({
-    user: "nodejs",
-    host: "localhost",
-    password: "nodejs123456",
-    database: "employeesystem",
-});
+const con = mysql.createConnection({
+    host: 'localhost',
+    user: 'nodejs',
+    password: 'nodejs123456',
+    database: 'employees'
+})
 
-db.connect(err => {
+con.connect(err => {
     if (err) {
         throw err;
     }
@@ -28,7 +32,7 @@ app.post("/create", (req, res) => {
     const position = req.body.position;
     const wage = req.body.wage;
 
-    db.query(
+    con.query(
         "INSERT INTO employees (name, age, country, position, wage) VALUES (?,?,?,?,?)",
         [name, age, country, position, wage],
         (err, result) => {
@@ -42,7 +46,7 @@ app.post("/create", (req, res) => {
 });
 
 app.get("/employees", (req, res) => {
-    db.query("SELECT * FROM employees", (err, result) => {
+    con.query("SELECT * FROM employees", (err, result) => {
         if (err) {
             console.log(err);
         } else {
@@ -54,7 +58,7 @@ app.get("/employees", (req, res) => {
 app.put("/update", (req, res) => {
     const id = req.body.id;
     const wage = req.body.wage;
-    db.query(
+    con.query(
         "UPDATE employees SET wage = ? WHERE id = ?",
         [wage, id],
         (err, result) => {
@@ -69,7 +73,7 @@ app.put("/update", (req, res) => {
 
 app.delete("/delete/:id", (req, res) => {
     const id = req.params.id;
-    db.query("DELETE FROM employees WHERE id = ?", id, (err, result) => {
+    con.query("DELETE FROM employees WHERE id = ?", id, (err, result) => {
         if (err) {
             console.log(err);
         } else {
@@ -78,6 +82,6 @@ app.delete("/delete/:id", (req, res) => {
     });
 });
 
-app.listen(3001, () => {
-    console.log("Yey, your server is running on port 3001");
-});
+app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`)
+})
